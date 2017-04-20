@@ -1,6 +1,6 @@
-# Udemy - Angular 2 The Complete Guide
+## Udemy - Angular 2 The Complete Guide
 
-## Section 1: Getting Started
+### Section 1: Getting Started
 
 **Install Angular CLI via NPM:**
 
@@ -32,7 +32,7 @@ We build our Angular applications out of components.  The `app.component` is the
 
 `app.component.ts` looks like this:
 
-```
+```javascript
     import { Component } from '@angular/core';
 
     @Component({
@@ -65,13 +65,13 @@ The new view syntax for ngModel = `[(ngModel)]="bound-variable"`
 
 1.  Observables
 
-### Decorators
+**Decorators**
 
 Decorators make Angular 2 components _components_. Without them, they're nothing.
 
 All components need exactly 1 template. Template is controlled by the TS code in our class.
 
-```
+```javascript
 @Component({
     selector: 'app-root',  // our new html element
     templateUrl: './app-root.component.html',  // our template file 
@@ -79,4 +79,104 @@ All components need exactly 1 template. Template is controlled by the TS code in
 })
 ```
 
-`/src/main.ts` is run first and bootstraps our main module, AppComponent.
+**TypeScript**
+
+More features than vanilla JS (e.g. Types, Classes, Interfaces, ...).
+
+**Boostrapping**
+
+`/src/main.ts` is run first and bootstraps our main module, AppModule: 
+
+```javascript
+    import { enableProdMode } from '@angular/core';
+    import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+
+    import { AppModule } from './app/app.module';
+    import { environment } from './environments/environment';
+
+    if (environment.production) {
+      enableProdMode();
+    }
+
+    platformBrowserDynamic().bootstrapModule(AppModule);
+```
+
+In the last line, the `bootstrapModule()` method is passed one argument: the `AppModule` imported in the 4th line from `./app/app.module.ts`.
+
+Looking at `app.module.ts`, notice the `bootstrap: [AppComponent]` array in the decorator - this is where the circle closes: we reference our appComponent (`./app/app.component.ts`).
+
+So it all works like this:
+
+1.  `main.ts` loads first bootstrapping our main application, passing our `app.module.ts` module as an argument
+2.  in `app.module.ts` we tell Angular to bootstrap our `appComponent` component.
+3.  Angular loads `appComponent` which references a `app-root` selector, and 
+4.  now Angular can handle `app-root` in `index.html`, inserting `appComponent` in place of the directive.
+
+####Components
+
+Key feature. We'll compose the whole application from components we'll create.
+
+We start with our appComponent - the root component. On one hand it's a normal Angular component; on the other hand it's special because it's our root component.  We'll later add additional components to this one. Their selectors will not be added to our `index.html` file; instead they'll be added to `app/app.component.html`.
+
+**A component is a TypsScript class**. Angular is able to instantiate it - to create objects based on this "blueprint".
+
+When making our own components, we'll begin by naming and exporting it (because we need to _import_ it elsewhere):
+
+```javascript
+export class ServerComponent {
+
+}
+```
+
+That's a normal TypeScript class, named "ServerComponent". But it doesn't do anything - it needs more information: a **decorator** tells Angular this is a component. We'll use the Component decorator, which we need to import before we can use:
+
+```javascript
+import { Component } from '@angular/core'    // import Component from Angular core
+
+@Component({                                 // init Component, which takes a config object
+    selector: 'app-server',                  // html element
+    templateUrl: './server.component.html'   // template
+})
+export class ServerComponent {
+
+}
+```
+
+Before we can use this component, we need to update our `app.module.ts`. Angular uses components to build we pages, and uses modules to bundle pieces (components, etc) into packages. What does `appModule` do? It's a collection of our app's features. We need to register our new `app-server` component in `appModule` before we can use it. Add an `import` statement and include the component's name in the `declarations` property of NgModule's config object:
+
+```javascript
+import { BrowserModule } from '@angular/platform-browser';
+import { NgModule } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { HttpModule } from '@angular/http';
+
+import { AppComponent } from './app.component';
+import { ServerComponent } from './server/server.component';
+
+@NgModule({
+    declarations: [
+        AppComponent,
+        ServerComponent
+    ],
+    imports: [
+        BrowserModule,
+        FormsModule,
+        HttpModule
+    ],
+    providers: [],
+    bootstrap: [AppComponent]
+})
+export class AppModule { }
+```
+
+We can also create components with the CLI. Say we wanted our `app-server` component nested inside a `servers` component.
+
+```
+ng generate component servers
+```
+
+(shorthand for the same)
+
+```
+ng g c servers
+```
