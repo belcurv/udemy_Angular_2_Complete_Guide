@@ -72,10 +72,10 @@ Decorators make Angular 2 components _components_. Without them, they're nothing
 All components need exactly 1 template. Template is controlled by the TS code in our class.
 
 ```javascript
-@Component({
-    selector: 'app-root',  // our new html element
-    templateUrl: './app-root.component.html',  // our template file 
-    styleUrls: []          // this component's css
+    @Component({
+        selector: 'app-root',  // our new html element
+        templateUrl: './app-root.component.html',  // our template file 
+        styleUrls: []          // this component's css
 })
 ```
 
@@ -112,7 +112,7 @@ So it all works like this:
 3.  Angular loads `appComponent` which references a `app-root` selector, and 
 4.  now Angular can handle `app-root` in `index.html`, inserting `appComponent` in place of the directive.
 
-####Components
+#### Components
 
 Key feature. We'll compose the whole application from components we'll create.
 
@@ -123,62 +123,62 @@ We start with our appComponent - the root component. On one hand it's a normal A
 When making our own components, we'll begin by naming and exporting it (because we need to _import_ it elsewhere):
 
 ```javascript
-export class ServerComponent {
+    export class ServerComponent {
 
-}
+    }
 ```
 
 That's a normal TypeScript class, named "ServerComponent". But it doesn't do anything - it needs more information: a **decorator** tells Angular this is a component. We'll use the Component decorator, which we need to import before we can use:
 
 ```javascript
-import { Component } from '@angular/core'    // import Component from Angular core
+    import { Component } from '@angular/core'    // import Component from Angular core
 
-@Component({                                 // init Component, which takes a config object
-    selector: 'app-server',                  // html element
-    templateUrl: './server.component.html'   // template
-})
-export class ServerComponent {
+    @Component({                                 // init Component, which takes a config object
+        selector: 'app-server',                  // html element
+        templateUrl: './server.component.html'   // template
+    })
+    export class ServerComponent {
 
-}
+    }
 ```
 
 Before we can use this component, we need to update our `app.module.ts`. Angular uses components to build we pages, and uses modules to bundle pieces (components, etc) into packages. What does `appModule` do? It's a collection of our app's features. We need to register our new `app-server` component in `appModule` before we can use it. Add an `import` statement and include the component's name in the `declarations` property of NgModule's config object:
 
 ```javascript
-import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { HttpModule } from '@angular/http';
+    import { BrowserModule } from '@angular/platform-browser';
+    import { NgModule } from '@angular/core';
+    import { FormsModule } from '@angular/forms';
+    import { HttpModule } from '@angular/http';
 
-import { AppComponent } from './app.component';
-import { ServerComponent } from './server/server.component';
+    import { AppComponent } from './app.component';
+    import { ServerComponent } from './server/server.component';
 
-@NgModule({
-    declarations: [
-        AppComponent,
-        ServerComponent
-    ],
-    imports: [
-        BrowserModule,
-        FormsModule,
-        HttpModule
-    ],
-    providers: [],
-    bootstrap: [AppComponent]
-})
-export class AppModule { }
+    @NgModule({
+        declarations: [
+            AppComponent,
+            ServerComponent
+        ],
+        imports: [
+            BrowserModule,
+            FormsModule,
+            HttpModule
+        ],
+        providers: [],
+        bootstrap: [AppComponent]
+    })
+    export class AppModule { }
 ```
 
 We can also create components with the CLI. Say we wanted our `app-server` component nested inside a `servers` component.
 
 ```
-ng generate component servers
+    ng generate component servers
 ```
 
 (shorthand for the same)
 
 ```
-ng g c servers
+    ng g c servers
 ```
 
 The `generate` command creates all the files we need, namsepaced the proper way ('servers.component.ts'), in a folder named 'servers', AND updates `app.module.ts`.
@@ -266,7 +266,7 @@ Just like in CSS, our Angular selectors can reference different DOM things. In o
 
 **BUT** selecting by ID will **NOT** work.
 
-###Assignment 1
+### Assignment 1
 1.  Create 2 new components, one manually and one using the CLI: WarningAlter and SuccessAlert
 2.  Output them beneath each other
 3.  make sure they have some appropriate text
