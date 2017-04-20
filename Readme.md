@@ -180,3 +180,94 @@ ng generate component servers
 ```
 ng g c servers
 ```
+
+The `generate` command creates all the files we need, namsepaced the proper way ('servers.component.ts'), in a folder named 'servers', AND updates `app.module.ts`.
+
+**Inline Templates**
+
+Components like `servers.component.ts` **need** to reference a template (just like Angular 1 directives). There are times when you can omit the selector, and you don't need to have styles - but **templates have to be present**.
+
+The template can be either and external file or inline, and the sytax is the same as Angular 1: `template` vs `templateUrl`. We could re-write our `servers.component.ts` like this:
+
+```
+    import { Component, OnInit } from '@angular/core';
+
+    @Component({
+      selector: 'app-servers',
+      template: '<app-server></app-server><app-server></app-server>',
+      styleUrls: ['./servers.component.css']
+    })
+    export class ServersComponent implements OnInit {
+
+      constructor() { }
+
+      ngOnInit() {
+      }
+
+    }
+```
+
+**Styling**
+
+You can have only 1 template; you can have multiple stylesheets.
+
+Since we are loading Bootstrap, we can just add CSS classes to the HTML in our templates:
+
+```html
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <h3>I'm in the App Component</h3>
+                <hr>
+                <app-servers></app-servers>
+            </div>
+        </div>
+    </div>
+```
+
+But we also have this line in our `app.component.ts` @Component decorator:
+
+```
+    styleUrls: ['./app.component.css']
+```
+
+That is an array of separate external stylesheets, all of which get applied to this component only. Edit `app.component.css` just like you would any normal CSS file.
+
+You can also write _inline_ CSS using a `styles` property which takes an array of strings:
+
+```
+    import { Component } from '@angular/core';
+
+    @Component({
+      selector: 'app-root',
+      templateUrl: './app.component.html',
+      // styleUrls: ['./app.component.css']
+      styles: [`
+        h3 {
+            color: dodgerblue;
+        }
+      `]
+    })
+    export class AppComponent {
+
+    }
+```
+
+**Selectors**
+
+Just like in CSS, our Angular selectors can reference different DOM things. In our component.ts files, we can select by any of the following:
+
+1.  an element:
+    `selector: 'app-servers'`
+2.  an element's attribute:
+    `selector: '[app-servers]'`
+3.  an elements class:
+    `selector: '.app-servers'`
+
+**BUT** selecting by ID will **NOT** work.
+
+###Assignment 1
+1.  Create 2 new components, one manually and one using the CLI: WarningAlter and SuccessAlert
+2.  Output them beneath each other
+3.  make sure they have some appropriate text
+4.  Style the components appropriately, one inline and one w/external stylesheet
