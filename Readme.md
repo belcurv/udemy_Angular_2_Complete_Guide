@@ -271,3 +271,131 @@ Just like in CSS, our Angular selectors can reference different DOM things. In o
 2.  Output them beneath each other
 3.  make sure they have some appropriate text
 4.  Style the components appropriately, one inline and one w/external stylesheet
+
+
+#### String Interpolation
+
+One-way binding, from model to view, inside `{{ doubleCurlyBraces }}`. Anything that is a string or can be converted to a string can be used in string interpolation. A string, a number, or a method that returns a string. Ex:
+
+```javascript
+    export class ServerComponent {
+        serverId: number = 10;            // converts to string
+        serverStatus: string = 'offline'; // is a string
+
+        getServerStatus() {
+            return this.serverStatus;     // returns a string
+        }
+    }
+```
+
+Used in template like this:
+
+```
+    <p>{{ 'Server' }} with ID {{ serverId }} is {{ getServerStatus() }}</p>
+```
+
+#### Property Binding
+
+We wrap a DOM attribute in `[square brackets]` to indicate to Angular that we're using **property binding**. That we want to dynamicaly bind some property. The property is bound to the value of some expression, which is wrapped in quotes (only! - no double curly braces!).  For ex:
+
+```
+    <button class="btn btn-primary" [disabled]="!allowNewServer">Add Server</button>
+```
+
+`[disabled]="!allowNewServer"` is a TypeScript expression!  Here, we are setting the `disabled` attribute depending on the value of `allowNewServer`, which is a value in our class:
+
+```javascript
+    export class ServersComponent implements OnInit {
+    
+        allowNewServer = false;   // starts 'false'
+
+        constructor() {
+
+            setTimeout( () => {
+                this.allowNewServer = true;  // 'true' after 2 secs
+                } , 2000)
+
+        }
+
+    }
+
+```
+
+#### Property Binding vs String Interpolation
+
+String interpolation:
+
+```html
+    <p>{{ allowNewServer }}</p>
+```
+
+Property binding:
+
+```
+    <p [innerText]="allowNewServer"></p>
+```
+
+When should you use one or the other? If you just want to output some text, use string interpolation. If you want to change some property of a HTML element, directive or component, use property binding.
+
+Don't mix property binding and string interpolation.
+
+#### Event Binding
+
+`(parenthesis)` are the signal that we're using event binding.  You use parens with the event name inside, and then the code you want to execute inside "quotes":
+
+```html
+    <button class="btn btn-primary"
+            [disabled]="!allowNewServer"
+            (click)="onCreateServer()">
+        Add Server
+    </button>
+```
+
+How do you know to which Properties or Events of HTML Elements you may bind? You can basically bind to all Properties and Events - a good idea is to `console.log()` the element you're interested in to see which properties and events it offers.
+
+**Important:** For events, you don't bind to `onclick` but only to `click` (=> (click)).
+
+MDN offers nice lists of all properties and events of the element you're interested in. Googling for `YOUR_ELEMENT properties`  or `YOUR_ELEMENT events`  should yield nice results.
+
+We can access DOM events using the reserved keyword `$event`:
+
+```html
+    <input type="text"
+            class="form-control"
+            (input)="onUpdateServerName($event)">
+    <p>{{ serverName }}</p>
+```
+
+That says, on `(input)` fire `onUpdateServerName()` method, passing in the `$event` object.  Then we can access that event in a class method:
+
+```javascript
+    serverName = '';
+
+    onUpdateServerName(event: Event) {
+        this.serverName = (<HTMLInputElement>event.target).value;
+    }
+```
+
+What's up with that `(<HTMLInputElement>event.target).value;`?  Why isn't it just `event.target.value;`?  We have to specifically **cast** this to type: Input Element. We tell TS that we know the type of the HTML element of this event is a HTML input element.
+
+#### Two-Way Databinding
+
+Two-way binding means `ngModel`. We wrap the HTML attribute in square brackets AND parenthesis, and set it equal to something (variable, etc) in our class. Looks like this:
+
+```html
+    <input type="text"
+        class="form-control"
+        [(ngModel)]="serverName">
+    <p>{{ serverName }}</p>
+```
+
+Important: For Two-Way-Binding to work, you need to enable the `ngModel` directive. This is done by adding the `FormsModule` to the `imports[]` array in the AppModule.
+
+You then also need to add the import from `@angular/forms` in the app.module.ts file:
+
+```javascript
+    import { FormsModule } from '@angular/forms';
+```
+
+#### Assignment 2:
+
