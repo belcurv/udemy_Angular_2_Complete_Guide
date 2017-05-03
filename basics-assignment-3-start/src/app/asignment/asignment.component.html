@@ -1,0 +1,13 @@
+<button class="btn btn-primary" type="button" name="button"
+    (click)="onClickHandler($event)">
+    Display Details
+</button>
+<p *ngIf="showParagraph">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam dapibus hendrerit tellus id eleifend. Nullam congue turpis in quam pellentesque, in vehicula purus pharetra. Fusce quis lacus a leo blandit pulvinar id quis dolor. Suspendisse potenti. Sed lobortis eget est in elementum. Fusce lacinia quis tortor et ultrices. In ut scelerisque ex, nec aliquam nibh. Curabitur in ex nec justo mattis placerat quis a arcu.</p>
+<hr>
+<ul>
+  <li *ngFor="let click of clicksLog"
+      [ngStyle]="{'background-color': isGreaterThanFour(click.index)}"
+      [ngClass]="{'whiteText': click.index > 4}">
+      Event# {{ click.index }} : {{ click.text }}
+  </li>
+</ul>

@@ -74,7 +74,7 @@ All components need exactly 1 template. Template is controlled by the TS code in
 ```javascript
     @Component({
         selector: 'app-root',  // our new html element
-        templateUrl: './app-root.component.html',  // our template file 
+        templateUrl: './app-root.component.html',  // our template file
         styleUrls: []          // this component's css
 })
 ```
@@ -85,7 +85,7 @@ More features than vanilla JS (e.g. Types, Classes, Interfaces, ...).
 
 **Boostrapping**
 
-`/src/main.ts` is run first and bootstraps our main module, AppModule: 
+`/src/main.ts` is run first and bootstraps our main module, AppModule:
 
 ```javascript
     import { enableProdMode } from '@angular/core';
@@ -109,7 +109,7 @@ So it all works like this:
 
 1.  `main.ts` loads first bootstrapping our main application, passing our `app.module.ts` module as an argument
 2.  in `app.module.ts` we tell Angular to bootstrap our `appComponent` component.
-3.  Angular loads `appComponent` which references a `app-root` selector, and 
+3.  Angular loads `appComponent` which references a `app-root` selector, and
 4.  now Angular can handle `app-root` in `index.html`, inserting `appComponent` in place of the directive.
 
 #### Components
@@ -306,7 +306,7 @@ We wrap a DOM attribute in `[square brackets]` to indicate to Angular that we're
 
 ```javascript
     export class ServersComponent implements OnInit {
-    
+
         allowNewServer = false;   // starts 'false'
 
         constructor() {
@@ -409,7 +409,7 @@ TypeScript:
 
 ```javascript
     @Directive({
-        selector: '[appTurnGreen]
+        selector: '[appTurnGreen]'
     })
     export class TurnGreenDirective {
         ...
@@ -478,7 +478,7 @@ Add the method in our component class:
     servers = ['Testserver', 'Testserver 2'];  // array of servers to ngFor loop over
 
     /* ... snip ... */
-    
+
     onCreateServer() {
         this.serverCreated = true;
         this.servers.push(this.serverName);  // push new server to array
