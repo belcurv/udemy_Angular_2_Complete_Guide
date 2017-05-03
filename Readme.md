@@ -397,5 +397,91 @@ You then also need to add the import from `@angular/forms` in the app.module.ts 
     import { FormsModule } from '@angular/forms';
 ```
 
-#### Assignment 2:
+#### Directives:
 
+Directives are instruction in the DOM. Component selectors are also instructions in the DOM. "Angular please add out component in this place." Components are directives with templates. Directives are usually declared in the attribute style:
+
+TypeScript:
+
+```html
+    <p appTurnGreen>Receives a green background!</p>
+```
+
+```javascript
+    @Directive({
+        selector: '[appTurnGreen]
+    })
+    export class TurnGreenDirective {
+        ...
+    }
+```
+
+**Useful Built-in Directives**
+
+Use **NgIf** to conditionally show content.
+
+```html
+    <p *ngIf="expression">Server was created, server name is {{ serverName }}</p>
+```
+
+The `*` is important. `*ngIf` is a _structural_ directive. Meaning it changes the structure of the DOM. `expression` must evaluate to `true` or `false`.
+
+We can add `else` clauses too. The `else` content to show is wrapped in `<ng-template>` and 'tagged' with a **local reference** - a _marker_ starting with the `#`:
+
+```html
+    <p *ngIf="serverCreated; else noServer">Server was created, server is {{ serverName }}</p>
+    <ng-template #noServer>
+        <p>No server was created!</p>
+    </ng-template>
+```
+
+### Constructor
+
+>A constructor is just a built-in method that each class has, which is called when each component is created.
+
+#### Styling Elements Dynamically with ngStyle
+
+These look like normal html attributes without the `*`. Say we want to change the color of an element depending on the status of some variable. For example, depending on the `serverStatus`. We add the **ngStyle** property inline with our html. We use **property binding** with [square brackets] around the property name. `[ngStyle]` expects to get a JavaScript object:
+
+```html
+    <p [ngStyle]="{'background-color': getColor()}">{{ 'Server' }} with ID {{ serverId }} is {{ getServerStatus() }}</p>
+```
+
+Add the method in our component class:
+
+```javascript
+    getColor() {
+        return this.serverStatus === 'online' ? 'green' : 'red';
+    }
+```
+
+### Applying CSS Classes Dynamically with ngClass
+
+`ngClass` allows us to dynamically add/remove CSS classes.  Like `ngStyle`, `ngClass` also only works as intended using property binding (wrap it in [square brackets]) and by giving it a JavaScript object. The object consists of key-values pairs. The keys are the CSS class names, the values are the conditions that determine whether the class should be attached or not.
+
+```html
+<p [ngStyle]="{'background-color': getColor()}"
+   [ngClass]="{online: serverStatus === 'online'}">
+        {{ 'Server' }} with ID {{ serverId }} is {{ getServerStatus() }}
+</p>
+```
+
+### Outputting Lists with ngFor
+
+`ngFor` loops over collections.
+
+```html
+    <app-server *ngFor="let server of servers"></app-server>
+```
+
+```javascript
+    servers = ['Testserver', 'Testserver 2'];  // array of servers to ngFor loop over
+
+    /* ... snip ... */
+    
+    onCreateServer() {
+        this.serverCreated = true;
+        this.servers.push(this.serverName);  // push new server to array
+        this.serverCreationStatus = `Server was created! Name is ${this.serverName}`;
+    }
+```
