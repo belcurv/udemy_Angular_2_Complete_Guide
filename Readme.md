@@ -32,7 +32,7 @@ We build our Angular applications out of components.  The `app.component` is the
 
 `app.component.ts` looks like this:
 
-```javascript
+```TypeScript
     import { Component } from '@angular/core';
 
     @Component({
@@ -47,7 +47,7 @@ We build our Angular applications out of components.  The `app.component` is the
 
 See the `export class Appcomponent` bit? the `name` property (variable?) in there is bound to the view (like $scope does in Angular 1).  Then, in `app.component.html` we do:
 
-```
+```html
     <input type="text" [(ngModel)]="name">
     <p>{{ name }}</p>
 ```
@@ -71,12 +71,12 @@ Decorators make Angular 2 components _components_. Without them, they're nothing
 
 All components need exactly 1 template. Template is controlled by the TS code in our class.
 
-```javascript
+```TypeScript
     @Component({
         selector: 'app-root',  // our new html element
         templateUrl: './app-root.component.html',  // our template file
         styleUrls: []          // this component's css
-})
+    })
 ```
 
 **TypeScript**
@@ -87,7 +87,7 @@ More features than vanilla JS (e.g. Types, Classes, Interfaces, ...).
 
 `/src/main.ts` is run first and bootstraps our main module, AppModule:
 
-```javascript
+```TypeScript
     import { enableProdMode } from '@angular/core';
     import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 
@@ -122,7 +122,7 @@ We start with our appComponent - the root component. On one hand it's a normal A
 
 When making our own components, we'll begin by naming and exporting it (because we need to _import_ it elsewhere):
 
-```javascript
+```TypeScript
     export class ServerComponent {
 
     }
@@ -130,7 +130,7 @@ When making our own components, we'll begin by naming and exporting it (because 
 
 That's a normal TypeScript class, named "ServerComponent". But it doesn't do anything - it needs more information: a **decorator** tells Angular this is a component. We'll use the Component decorator, which we need to import before we can use:
 
-```javascript
+```TypeScript
     import { Component } from '@angular/core'    // import Component from Angular core
 
     @Component({                                 // init Component, which takes a config object
@@ -144,7 +144,7 @@ That's a normal TypeScript class, named "ServerComponent". But it doesn't do any
 
 Before we can use this component, we need to update our `app.module.ts`. Angular uses components to build we pages, and uses modules to bundle pieces (components, etc) into packages. What does `appModule` do? It's a collection of our app's features. We need to register our new `app-server` component in `appModule` before we can use it. Add an `import` statement and include the component's name in the `declarations` property of NgModule's config object:
 
-```javascript
+```TypeScript
     import { BrowserModule } from '@angular/platform-browser';
     import { NgModule } from '@angular/core';
     import { FormsModule } from '@angular/forms';
@@ -189,7 +189,7 @@ Components like `servers.component.ts` **need** to reference a template (just li
 
 The template can be either and external file or inline, and the sytax is the same as Angular 1: `template` vs `templateUrl`. We could re-write our `servers.component.ts` like this:
 
-```
+```TypeScript
     import { Component, OnInit } from '@angular/core';
 
     @Component({
@@ -227,7 +227,7 @@ Since we are loading Bootstrap, we can just add CSS classes to the HTML in our t
 
 But we also have this line in our `app.component.ts` @Component decorator:
 
-```
+```TypeScript
     styleUrls: ['./app.component.css']
 ```
 
@@ -235,7 +235,7 @@ That is an array of separate external stylesheets, all of which get applied to t
 
 You can also write _inline_ CSS using a `styles` property which takes an array of strings:
 
-```
+```TypeScript
     import { Component } from '@angular/core';
 
     @Component({
@@ -277,7 +277,7 @@ Just like in CSS, our Angular selectors can reference different DOM things. In o
 
 One-way binding, from model to view, inside `{{ doubleCurlyBraces }}`. Anything that is a string or can be converted to a string can be used in string interpolation. A string, a number, or a method that returns a string. Ex:
 
-```javascript
+```TypeScript
     export class ServerComponent {
         serverId: number = 10;            // converts to string
         serverStatus: string = 'offline'; // is a string
@@ -290,7 +290,7 @@ One-way binding, from model to view, inside `{{ doubleCurlyBraces }}`. Anything 
 
 Used in template like this:
 
-```
+```html
     <p>{{ 'Server' }} with ID {{ serverId }} is {{ getServerStatus() }}</p>
 ```
 
@@ -298,13 +298,13 @@ Used in template like this:
 
 We wrap a DOM attribute in `[square brackets]` to indicate to Angular that we're using **property binding**. That we want to dynamicaly bind some property. The property is bound to the value of some expression, which is wrapped in quotes (only! - no double curly braces!).  For ex:
 
-```
+```html
     <button class="btn btn-primary" [disabled]="!allowNewServer">Add Server</button>
 ```
 
 `[disabled]="!allowNewServer"` is a TypeScript expression!  Here, we are setting the `disabled` attribute depending on the value of `allowNewServer`, which is a value in our class:
 
-```javascript
+```TypeScript
     export class ServersComponent implements OnInit {
 
         allowNewServer = false;   // starts 'false'
@@ -318,7 +318,6 @@ We wrap a DOM attribute in `[square brackets]` to indicate to Angular that we're
         }
 
     }
-
 ```
 
 #### Property Binding vs String Interpolation
@@ -331,7 +330,7 @@ String interpolation:
 
 Property binding:
 
-```
+```html
     <p [innerText]="allowNewServer"></p>
 ```
 
@@ -368,7 +367,7 @@ We can access DOM events using the reserved keyword `$event`:
 
 That says, on `(input)` fire `onUpdateServerName()` method, passing in the `$event` object.  Then we can access that event in a class method:
 
-```javascript
+```TypeScript
     serverName = '';
 
     onUpdateServerName(event: Event) {
@@ -393,7 +392,7 @@ Important: For Two-Way-Binding to work, you need to enable the `ngModel` directi
 
 You then also need to add the import from `@angular/forms` in the app.module.ts file:
 
-```javascript
+```TypeScript
     import { FormsModule } from '@angular/forms';
 ```
 
@@ -407,7 +406,7 @@ TypeScript:
     <p appTurnGreen>Receives a green background!</p>
 ```
 
-```javascript
+```TypeScript
     @Directive({
         selector: '[appTurnGreen]'
     })
@@ -449,7 +448,7 @@ These look like normal html attributes without the `*`. Say we want to change th
 
 Add the method in our component class:
 
-```javascript
+```TypeScript
     getColor() {
         return this.serverStatus === 'online' ? 'green' : 'red';
     }
@@ -460,10 +459,10 @@ Add the method in our component class:
 `ngClass` allows us to dynamically add/remove CSS classes.  Like `ngStyle`, `ngClass` also only works as intended using property binding (wrap it in [square brackets]) and by giving it a JavaScript object. The object consists of key-values pairs. The keys are the CSS class names, the values are the conditions that determine whether the class should be attached or not.
 
 ```html
-<p [ngStyle]="{'background-color': getColor()}"
-   [ngClass]="{online: serverStatus === 'online'}">
-        {{ 'Server' }} with ID {{ serverId }} is {{ getServerStatus() }}
-</p>
+    <p [ngStyle]="{'background-color': getColor()}"
+       [ngClass]="{online: serverStatus === 'online'}">
+            {{ 'Server' }} with ID {{ serverId }} is {{ getServerStatus() }}
+    </p>
 ```
 
 ### Outputting Lists with ngFor
@@ -474,7 +473,7 @@ Add the method in our component class:
     <app-server *ngFor="let server of servers"></app-server>
 ```
 
-```javascript
+```TypeScript
     servers = ['Testserver', 'Testserver 2'];  // array of servers to ngFor loop over
 
     /* ... snip ... */
