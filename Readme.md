@@ -485,3 +485,27 @@ Add the method in our component class:
         this.serverCreationStatus = `Server was created! Name is ${this.serverName}`;
     }
 ```
+
+## Planning our Project Application
+
+We're going to build a Shopping List / Recipe Book application.  Our plan will look like this. Components, Features and Model (data):
+
+```
+                      Root Component
+                            |
+                     Header Component
+                            |
+              /------------------------------------\
+             |                                     |
+   Shopping List Feature                  Recipe Book Feature
+             |                                     |
+  Shopping List Component                   Recipe Component
+             |                                     |
+  Shopping List Component                Recipe List Component
+             |                                     |
+Shopping List Edit Component             Recipe Item Component
+             |                                     |
+      Ingredient Model                   Recipe Detail Component
+                                                   |
+                                              Recipe Model
+```
