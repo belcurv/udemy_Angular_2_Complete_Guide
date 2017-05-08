@@ -508,3 +508,30 @@ Shopping List Edit Component             Recipe Item Component
                                                    |
                                               Recipe Model
 ```
+
+**TypeScript shortcut** when working with constructors within classes. You might define a model like this:
+
+```TypeScript
+  export class Ingredient {
+
+    public name   : string;
+    public amount : number;
+
+    constructor(name: string, amount: number) {
+      this.name   = name;
+      this.amount = amount;
+    }
+
+}
+```
+
+That pattern is so common that TypeScript gives us this shortcut which does the same thing:
+
+```TypeScript
+export class Ingredient {
+
+  constructor(public name: string, public amount: number) {
+  }
+
+}
+```
