@@ -535,3 +535,131 @@ export class Ingredient {
 
 }
 ```
+
+## Understanding Angular Error Messages
+
+Blah blah - use the dev tool console and the debugger with sourcemaps.
+
+Third technique: Augury Chrome extension. It installs into Chrome's dev tools and lets us inspect and analyze Angular 2 apps.
+
+## Understanding Components and Databinding
+
+#### Splitting Apps Into Components
+
+The main issue is how to pass data between components. In the _basics_ section, we learned about property and event binding. We kind of passed data to an element (for example that some element should be disabled if a property is true). The same with event binding - when we clicked a button, the button emitted an event (data) to which we were able to listen. We need this sort of behavior with our own components - we need to be able to send data into a component or receive data from components.
+
+Angular gives us great tools to implement this. We can use
+1.  Native Properties and Events of HTML Elements
+2.  Custom properties and events on Directives
+3.  Custom properties and events on our own Components. We can emit our own events.
+
+**Property Binding**
+
+Hopefully I can explain this ... Say we have two components, a parent `app.component` and a child `server-element-component`, where we use the child inside the parent `app.component.html`:
+
+```html
+  <div class="col-xs-12">
+    <app-server-element
+      *ngFor="let serverElement of serverElements">
+    </app-server-element>
+  </div>
+```
+
+Note that we are trying to loop over some array `serverElements`. That's a property of our parent `app.component.ts`:
+
+```TypeScript
+  import { Component } from '@angular/core';
+
+  @Component({
+    selector: 'app-root',
+    templateUrl: './app.component.html',
+    styleUrls: ['./app.component.css']
+  })
+  export class AppComponent {
+
+    serverElements = [
+      {type: 'server', name: 'TestServer', content: 'Just a test'}
+    ];
+
+  }
+```
+
+The goal: loop over the `serverElements` array in `app.component.ts` passing each element into our `<app-server-element>` child component.
+
+The `app-server-element` component has a `element` property and looks like this:
+
+```TypeScript
+  import { Component, OnInit } from '@angular/core';
+
+  @Component({
+    selector: 'app-server-element',
+    templateUrl: './server-element.component.html',
+    styleUrls: ['./server-element.component.css']
+  })
+  export class ServerElementComponent implements OnInit {
+
+    // TYPE DEFINITION for the `element` property we want to use in
+    // our template. Everything after the `:` defines the type.
+    // `element` is an object with 3 properties:
+    element: {type: string, name: string, content: string};
+
+    constructor() { }
+
+    ngOnInit() {
+    }
+
+  }
+```
+
+> Note: the **type definition** for `element` follows the colon. That's not _assignment_, that's a TypeScript type definition. `element` is an _object_ because of the curly braces. And the object has three properties, the value of each property is of type `string`.
+
+What we need to do is bind the values from `app.component.ts`'s `serverElements` array to attributes in the `<app-server-element>` template. We add the attribute in `app.component.html` template using Angular **property binding**:
+
+```html
+  <app-server-element
+    *ngFor="let serverElement of serverElements"
+    [element]="serverElement">  <!-- <- SEE HERE! -->
+  </app-server-element>
+```
+
+Here we are saying, insert one `<app-server-element>` component for each element in the `serverElements` array, passing `"serverElement"` into bound attribute `[element]`.
+
+Since each element in the `serverElements` array is an object, we access its properties in the `<app-server-element>` template thus:
+
+```html
+  <div class="panel panel-default">
+    <div class="panel-heading">{{ element.name }}</div>
+    <div class="panel-body">
+      <p>
+        <strong *ngIf="element.type === 'server'" style="color: red">{{ element.content }}</strong>
+        <em *ngIf="element.type === 'blueprint'">{{ element.content }}</em>
+      </p>
+    </div>
+  </div>
+```
+
+Note the interpolated `element.name`, `element.type`, and `element.content`  properties - those come from the object we passed in from `app.component.html` via **property binding**.
+
+But that's not enough. By default, Angular firewalls component properties from each other. We need to add a _decorator_ to `server-element-component.ts` to permit receiving the object that we try to pass in via property binding. We add the `@Input` decorator after importing it from `@angularCore`:
+
+```TypeScript
+  import { Component, OnInit, Input } from '@angular/core';
+
+  @Component({
+    selector: 'app-server-element',
+    templateUrl: './server-element.component.html',
+    styleUrls: ['./server-element.component.css']
+  })
+  export class ServerElementComponent implements OnInit {
+
+    // Note the `@Input` decorator - this lets us pass properties in
+    // to this component from parent components
+    @Input() element: {type: string, name: string, content: string};
+
+    constructor() { }
+
+    ngOnInit() {
+    }
+
+  }
+```
