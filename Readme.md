@@ -663,3 +663,172 @@ But that's not enough. By default, Angular firewalls component properties from e
 
   }
 ```
+
+The `@Import()` decorator is crucial!
+
+#### Aliases
+
+Sometimes you don't want to use the same property outside the component as inside the component.  You can assign an **alias**. We might want to call the attribute `[srvElement]` instead of `[element]` in the `app.component.html` template:
+
+```html
+  <app-server-element
+    *ngFor="let serverElement of serverElements"
+    [srvElement]="serverElement">
+  </app-server-element>
+```
+
+But `srvElement` doesn't exist in `server-element.component.ts`. We **alias** it by passing the **alias** property name to the `@input` decorator:
+
+```TypeScript
+  @Input('srvElement') element: {type: string, name: string, content: string};
+```
+
+#### Binding To Custom Events
+
+Property binding allows us to pass data into child components from parents. Event emitting is the opposite: pushing data from child components up to parents.
+
+To begin with, say we have this `app.component.html` template:
+
+```html
+  <div class="container">
+    <app-cockpit></app-cockpit>
+    ...
+  </div>
+```
+
+And we want to listen for events on `<app-cockpit>`. We can do it the same way we listened for 'click' events on a button. We have two events, so we add two listeners:
+
+```html
+  <div class="container">
+    <app-cockpit
+      (serverCreated)="onServerAdded($event)"
+      (blueprintCreated)="onBlueprintAdded($event)">
+    </app-cockpit>
+    ...
+  </div>
+```
+
+Now in `app.component.ts` our methods expect to receive data from each listener's `$event` - we'll call them `serverData` and `blueprintData` and define their type:
+
+```TypeScript
+  export class AppComponent {
+
+    serverElements = [{type: 'server', name: 'TestServer', content: 'Just a test'}];
+
+    onServerAdded(serverData: {serverName: string, serverContent: string}) {
+      this.serverElements.push({
+        type: 'server',
+        name: serverData.serverName,
+        content: serverData.serverContent
+      });
+    }
+
+    onBlueprintAdded(blueprintData: {serverName: string, serverContent: string}) {
+      this.serverElements.push({
+        type: 'blueprint',
+        name: blueprintData.serverName,
+        content: blueprintData.serverContent
+      });
+    }
+
+  }
+```
+
+Now we have to generate the events. We'll do that in `cockpit.component.ts`. We start by declaring the two properties `serverCreated` and `blueprintCreated` and then assigning them new event emitters. First import `EventEmitter` at the top:
+
+```TypeScript
+  import { Component, OnInit, EventEmitter } from '@angular/core';
+
+  @Component({
+    selector: 'app-cockpit',
+    templateUrl: './cockpit.component.html',
+    styleUrls: ['./cockpit.component.css']
+  })
+  export class CockpitComponent implements OnInit {
+
+    // SEE HERE !
+    serverCreated = new EventEmitter<{
+      serverName    : string,
+      serverContent : string
+    }>();
+    blueprintCreated = new EventEmitter<{
+      serverName    : string,
+      serverContent : string
+    }>();
+
+    /* ... */
+
+  }
+```
+
+`EventEmitter` is an object in the Angular framework which allows you to emit your own events. It is a generic type, which is indicated by the greater-than / less-than brackets `<>`. And in between you define the type of event data you're going to emit. In our case, it's an object consisting of `serverName` and `serverContent`. The `()` parens at the end call the EventEmitter's constructor, creating a new EventEmitter object. We store that object in the `serverCreated` property. We do the same form `blueprintCreated`.
+
+Now we can write the event click handlers:
+
+```TypeScript
+  export class CockpitComponent implements OnInit {
+
+    serverCreated = new EventEmitter<{
+      serverName    : string,
+      serverContent : string
+    }>();
+    blueprintCreated = new EventEmitter<{
+      serverName    : string,
+      serverContent : string
+    }>();
+
+    newServerName    = '';
+    newServerContent = '';
+
+    /* ... */
+
+    onAddServer() {
+      this.serverCreated.emit({
+        serverName: this.newServerName,
+        serverContent: this.newServerContent });
+    }
+
+    onAddBlueprint() {
+      this.blueprintCreated.emit({
+        serverName: this.newServerName,
+        serverContent: this.newServerContent });
+    }
+
+  }
+```
+
+Both `onAddServer()` and `onAddBlueprint()` just call the `.emit()` method of each EventEmitter, passing in the object that the EventEmitter expects based on the event type data we defined.
+
+The only thing left to do is add a decorator to permit 'export' of these events. We use the `@Output` decorator after importing it from `@angular/core` at the top:
+
+```TypeScript
+  export class CockpitComponent implements OnInit {
+
+    @Output() serverCreated = new EventEmitter<{
+      serverName    : string,
+      serverContent : string
+    }>();
+
+    @Output() blueprintCreated = new EventEmitter<{
+      serverName    : string,
+      serverContent : string
+    }>();
+```
+
+Just like `@Input` we can **alias** `@Output`. We do it the same way. Say we want to alias the event `bpCreated`. We have to listen for that event in `app.component.html`:
+
+```html
+  <app-cockpit
+    (serverCreated)="onServerAdded($event)"
+    (bpCreated)="onBlueprintAdded($event)">
+  </app-cockpit>
+```
+
+And pass the alias to the `@Output()` decorator:
+
+```TypeScript
+  @Output('bpCreated') blueprintCreated = new EventEmitter<{
+    serverName    : string,
+    serverContent : string
+  }>();
+```
