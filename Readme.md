@@ -29,7 +29,6 @@ We build our Angular applications out of components.  The `app.component` is the
 
 **ngModel is ... different**
 
-
 `app.component.ts` looks like this:
 
 ```TypeScript
@@ -832,3 +831,32 @@ And pass the alias to the `@Output()` decorator:
     serverContent : string
   }>();
 ```
+
+One issue with the above approach - if you have many components, the chains of `@Input()` and `@Output()` become incredible difficult to manage. There are some cases where the 'distance' between two components that need to talk to each other is so great that building a chain of `@Input()` and `@Output()` is impractical. We'll see a better solution to this issue later when discussing **services**.
+
+#### Understanding Event View Encapsulation
+
+Major difference with Angular - component CSS files/rules apply to **that component only**. This is different from normal CSS behavior, where a rules apply to all elements regardless of where they are defined. Angular gives us this encapsulation behavior.
+
+Angular gives each component a unique attribute name dynamically. We don't need to define them. This is how Angular enforces style encapsulation.  For example, notice that each element in `server-element.component.html` has the `ngcontent-c2=""` attribute:
+
+```html
+<div _ngcontent-c2="" class="panel panel-default">
+  <div _ngcontent-c2="" class="panel-heading">Test Server</div>
+  <div _ngcontent-c2="" class="panel-body">
+    <p _ngcontent-c2="">
+      <!--bindings={ "ng-reflect-ng-if": "true" }-->
+      <strong _ngcontent-c2="" style="color: red">Test Server Content</strong>
+      <!--bindings={ "ng-reflect-ng-if": "false" }-->
+    </p>
+  </div>
+</div>
+```
+
+The dynamic custom attributes bind the component's CSS to the elements in the component template. This kind of emulates the **shadow DOM**: a technology not yet supported the same way by all browsers, in which the browser includes a subtree of DOM elements into the rendering of a document, but not into the main document DOM tree. A slider is a classic example:
+
+```html
+  <input type="range">
+```
+
+That one element actually contains multiple sub-elements that we don't have immediate control over - the track, the movable slider 'knob' element, etc. This is sort of like how Angular encapsulates a whole component's DOM sub-tree with the custom property.
