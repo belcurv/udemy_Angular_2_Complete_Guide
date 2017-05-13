@@ -860,3 +860,99 @@ The dynamic custom attributes bind the component's CSS to the elements in the co
 ```
 
 That one element actually contains multiple sub-elements that we don't have immediate control over - the track, the movable slider 'knob' element, etc. This is sort of like how Angular encapsulates a whole component's DOM sub-tree with the custom property.
+
+**You can override style encapsulation.** In a component's `.ts` file, we can add an `encapsulation` property to the decorator. Import `ViewEncapsulation` from `@angular/core` first:
+
+```TypeScript
+  import { Component, OnInit, Input, ViewEncapsulation } from '@angular/core';
+
+  @Component({
+    selector: 'app-server-element',
+    templateUrl: './server-element.component.html',
+    styleUrls: ['./server-element.component.css'],
+    encapsulation: ViewEncapsulation.SOME_METHOD
+  })
+```
+
+`SOME_METHOD` above can be one of three methods:
+
+1.  `.Emulated` - this is the default behavior. There's no need to specif this.
+2.  `.None` - don't provide any template or style encapsulation. CSS styles written for this component will be applied globally.
+3.  `.Native` - use the native encapsulation mechanism of the renderer. For the DOM, this means the Shadow DOM. This _should_ give the same result as `.Emulated` but only in browsers that support Shadow DOM. Which is why, in most cases, it's best to just stick to the default `.Emulated`.
+
+#### Using Local References In Templates
+
+A local reference gives us a way to do something with an **entire** element in a template, either using the element (or some attribute/value on the element) elsewhere in the template, or passing it to our TypeScript code.
+
+Define a local reference with a `#` hash. For example, we don't have to use ngModel to pass data from a form to our TypeScript code. We can use a local reference instead:
+
+```html
+  <label>Server Name</label>
+  <input type="text"
+         class="form-control"
+         #serverNameInput>  <!-- new local ref -->
+
+  <button class="btn btn-primary"
+          (click)="onAddServer(serverNameInput)">Add Server
+  </button>
+
+```
+
+Note that once `#serverNameInput` is defined, we pass it as an argument to the click event binding (omit the hash). Then we can access it in our TypeScript file (`HTMLInputElement` is its 'type'):
+
+```TypeScript
+  onAddServer(nameInput: HTMLInputElement) { // receive the local ref
+    this.serverCreated.emit({
+      serverName    : nameInput.value,       // do something with its value
+      serverContent : this.newServerContent });
+  }
+```
+
+#### Getting Access to the Template and DOM with @ViewChild
+
+In addition to local references, there's another way of getting access to any element directly from within our TypeScript code. We previously accessed DOM elements through a method call from the template. Sometimes you need to access the DOM before (or instead of) using methods. There's a nice TypeScript decorator that lets us do this: `@ViewChild`.
+
+We still start with defining a local ref in the template:
+
+```html
+  <label>Server Content</label>
+  <input type="text"
+         class="form-control"
+         #serverContentInput>  <!-- local ref -->
+```
+
+And we access it purely in the TypeScript. Import `ViewChild` and `ElementRef` first. `ViewChild` is the decorator; `ElementRef` is an Angular-definied type. Example:
+
+```TypeScript
+  import { Component, OnInit, EventEmitter, Output, ViewChild, ElementRef } from '@angular/core';
+
+  /* ... snip ... */
+
+  export class CockpitComponent implements OnInit {
+
+    /* ... snip ... */
+
+    /* This decorator binds the 'serverContentInput' local ref to a
+       new property 'serverContentInput', which is of type 'ElementRef'
+    */
+    @ViewChild('serverContentInput') serverContentInput: ElementRef;
+
+    /* Then we can use properties of 'serverContentInput' in our methods.
+       Below we access 'value' through serverContentInput's 'nativeElement'
+       property.
+    */
+    onAddServer(nameInput: HTMLInputElement) {
+      console.log(this.serverContentInput);
+      this.serverCreated.emit({
+        serverName    : nameInput.value,
+        serverContent : this.serverContentInput.nativeElement.value });
+    }
+```
+
+**Recap** we can access DOM elements and their properties two ways: by passing local references to bound methods, or using @ViewChild.
+
+### Projecting Content Into Components with ng-content
+
+So far we've learned how to pass data around, how to access elements in our DOM, how to use local references - we have many tools to enable the difference pieces of our application to interact with each other.
+
+There is one more way we can pass data around.
