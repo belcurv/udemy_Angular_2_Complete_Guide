@@ -956,3 +956,102 @@ And we access it purely in the TypeScript. Import `ViewChild` and `ElementRef` f
 So far we've learned how to pass data around, how to access elements in our DOM, how to use local references - we have many tools to enable the difference pieces of our application to interact with each other.
 
 There is one more way we can pass data around.
+
+Sometimes you have complex html code that you want to pass into a component from outside. For example, imaging you start with this:
+
+```html
+  <div class="panel panel-default">
+    <div class="panel-heading">{{ element.name }}</div>
+    <div class="panel-body">
+      <p>
+        <strong *ngIf="element.type === 'server'" style="color: red">{{ element.content }}</strong>
+        <em *ngIf="element.type === 'blueprint'">{{ element.content }}</em>
+      </p>
+    </div>
+  </div>
+```
+
+And you want to instead pass in the whole '<p>' with everything inside it:
+
+```html
+  <p>
+    <strong *ngIf="element.type === 'server'" style="color: red">{{ element.content }}</strong>
+    <em *ngIf="element.type === 'blueprint'">{{ element.content }}</em>
+  </p>
+```
+
+You want to pass that in from the component's parent component:
+
+```html
+  <div class="container">
+    <app-cockpit
+      (serverCreated)="onServerAdded($event)"
+      (bpCreated)="onBlueprintAdded($event)">
+    </app-cockpit>
+    <hr>
+    <div class="row">
+      <div class="col-xs-12">
+        <app-server-element
+          *ngFor="let serverElement of serverElements"
+          [srvElement]="serverElement">
+
+          <p>
+            <strong *ngIf="serverElement.type === 'server'" style="color: red">{{ serverElement.content }}</strong>
+            <em *ngIf="serverElement.type === 'blueprint'">{{ serverElement.content }}</em>
+          </p>
+
+        </app-server-element>
+      </div>
+    </div>
+  </div>
+```
+
+You might think that all you need to do is replace instances of `emelent` with `serverElement` - but it silently breaks. We acn fix this using a special directive (it looks like a component but it doesn't have its own template): `ng-content`.
+
+In the place where we want to render the content, we add a 'hook' to mark the place where angular should add any content it finds between the component's opening and closing tags in the parent element (so in between `app-server-element`).
+
+```html
+  <div class="panel panel-default">
+    <div class="panel-heading">{{ element.name }}</div>
+    <div class="panel-body">
+
+      <ng-content></ng-content>
+
+    </div>
+  </div>
+```
+
+The parent's HTML code is _projected_ into the child component. Everything between:
+
+```html
+<app-server-element>
+  <!-- all content in here -->
+</app-server-element>
+```
+
+Is _projected_ into the `app-server-element` where Angular finds the `ng-content` directive.
+
+#### Understanding the Component Lifecycle
+
+Looking at a component's TypeScript, what's up with `ngOnInit`? The CLI creates it, what's it doing?
+
+Lifecycle
+1.  When Angular sees one of our component selectors, it instantiates that component and places it into the DOM.
+2.  Once a new component is instantiated, Angular goes through a few phases in creation process.
+3.  We can hook into the phases using some methods:
+    1.  `ngOnChanges` - executed right at the start and whenever a bound input property (`@Input`) changes.
+    2.  `ngOnInit` - Called once the component is initialized, after the constructor.
+    3.  `ngDoCheck` - called during every change detection run.
+    4.  `ngAfterContentInit` - called after content (`ng-content`) has been projected into the view.
+    5.  `ngAfterContentChecked` - Called every time the projected content has been checked
+    6.  `ngAfterViewInit` - is then called after the component's view (and any child views) has been initialized
+    7.  `ngAfterViewCheck` - called every time the view (and child viwes) have been checked.
+    8.  `ngOnDestroy` - finally, if your `ngIf` is 'false', removing it from the DOM, ngOnDestroy is called. Called right before Angular kills the actual object, giving you opportunity to do some cleanup if needed.
+
+#### Seeing Lifecycle Hooks in applications
+
+Jesus, he goes through them all in 13 minutes.
+
+#### Lifecycle Hooks and Template Access
+
+Create three new components: GameControl, Odd, Even
